@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  zeztra_rabbitmq:
+    image: rabbitmq:3-management
+    container_name: zeztra_rabbitmq
+    ports:
+      - "5672:5672"  # Porta padrão do RabbitMQ para comunicação com os clientes
+      - "15672:15672" # Porta para acessar a interface de administração web
+    environment:
+      RABBITMQ_DEFAULT_USER: guest  # Nome de usuário padrão
+      RABBITMQ_DEFAULT_PASS: guest  # Senha padrão
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq  # Persistência de dados
+  zeztra_mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+  zestra_localstack:
+    image: localstack/localstack:3
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - ENV_AWS_REGION=us-east-1
+      - ENV_AWS_ACCESS_KEY_ID=000000000001
+      - ENV_AWS_SECRET_ACCESS_KEY=000000000001
+    ports:
+      - "4566:4566"
+      - "8085:443"
+    volumes:
+      - './.docker/localstack/:/etc/localstack/init/ready.d/'
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development 
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - .:/usr/src/app 
+    networks:
+      - app-network
+
+volumes:
+  rabbitmq_data:
+  mongo-data:
+
+networks:
+  app-network:
+    driver: bridge
