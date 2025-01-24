@@ -4,11 +4,6 @@ export default class ListTransactionsDto{
     @ApiProperty({
         required: false
     })
-    document: string;
-
-    @ApiProperty({
-        required: false
-    })
     startDate: Date;
 
     @ApiProperty({
@@ -19,12 +14,12 @@ export default class ListTransactionsDto{
     @ApiProperty({
         required: false
     })
-    startAmount: Date;
+    startAmount: number;
 
     @ApiProperty({
         required: false
     })
-    endAmount: Date;
+    endAmount: number;
     
     @ApiProperty({
         required: false,
